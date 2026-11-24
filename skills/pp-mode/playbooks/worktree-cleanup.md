@@ -1,0 +1,10 @@
+### Worktree and simulator cleanup
+
+1. Record `df -h /` and run `<skill-dir>/scripts/worktree-audit.sh [-b <pr-base-ref>] [repo-path]`. Supply the actual target branch when it differs from `origin/HEAD`. If Pi started with `--session-dir`, set `PI_CODING_AGENT_SESSION_DIR` to that absolute directory for the audit and session lookup. The script reads Git's registered worktrees and reports size, merge state, uncommitted work, PR state and recent Pi session activity.
+2. Check candidate paths against the current checkout, active workers, worktree locks and any user-pinned sessions. Missing activity data leaves occupancy unknown. A bucket is a suggestion. A clean directory can still belong to a live worker.
+3. For a questionable candidate, use `uv run --no-project <skill-dir>/scripts/sessions.py --cwd <worktree> --include-workers`. The audit also checks child session headers under parent session directories and matches their recorded working directories. If a child used a separate session store, pass that store with `--session-dir` or look up its run ID through [Session pickup](session-pickup.md). Confirm actual usage before removal, including a sibling worker still using its checkout.
+4. Show the exact paths to remove, sizes, branches, unpushed commits and tracked, untracked or ignored files that would be lost. Keep unresolved candidates. Obtain the user's decision for destructive removal unless it already covers that precise set.
+5. For the confirmed set use `git worktree remove <path>` on each eligible worktree. If Git refuses, inspect its reason and remaining contents before proceeding. Preserve branch refs and all unapproved data. Run `git worktree prune --dry-run` before pruning stale metadata. Re-list worktrees and check `df -h /` afterward.
+6. When the requested cleanup includes macOS simulators or caches, inventory them first with tools such as `xcrun simctl list`. Remove only explicitly authorized targets by identifier. Keep the cleanup report separate from claims about disk space already reclaimed.
+
+**Reply:** report free space before and after, worktrees removed and the reason each remaining candidate was held.

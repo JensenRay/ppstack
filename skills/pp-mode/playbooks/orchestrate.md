@@ -1,0 +1,25 @@
+### Orchestrate
+
+**You run the program, never the code. Decide which agent does each piece of work, then check what each one produces.** For a standing project handed to one coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, few human turns. One task driven to a predicate is Autonomous run. One ambitious run that needs a bespoke workflow is figure-it-out. Work that one agent could finish inside the session's budget is not a program.
+
+Dispatch through pi-subagents described in [pp-mode](../SKILL.md#subagents). Keep one durable program note at `${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/ppstack/orchestrate/<project-slug>/notes.md` or a user-designated writable location. Record the goal, queue, dependencies, owner IDs, worktrees, PR heads and verdicts. Use the [Babysit](babysit.md) watcher for authorized PR monitoring. If no independent worker can be started, report that limitation and present the work queue.
+
+#### Topology
+
+- **One owner per PR.** The owner is the only writer of its branch and carries the PR from build to merge. Only the owner pushes, rebases, or retargets it. Closing or retargeting a base PR orphans every PR above it, so the owner does that only on your call. You never author or edit code. Conflicted merges, chain rebases, and fixes go to owners.
+- **A fresh worker for each independent task.** Its kickoff carries everything it needs, including the paths to the upstream artifacts and the decisions it depends on. Workers can't see their siblings. Assign each writer a separate local worktree. Pass its absolute path in the kickoff and verify the branch before any edits. Pick each subagent's effort for the job, per the Subagents section.
+- **A sub-coordinator only when one area has many parallel workers.** It owns that area's workers and kickoffs and sends you one rollup, never raw worker reports. When a subagent cannot delegate, the root starts workers from its briefs and returns their results. Give the coordinator its own worktree. Use the root's background batch for its ready units so they share one concurrency limit.
+- **Reuse a worker's worktree when new work needs its built state,** such as its checkout, uncommitted changes, or a running process: resume that worker, or start a new worker in that worktree after it stops. Submit follow-ups with the returned worker ID. For background tasks, use the upstream status action and completion notices.
+- **Each PR gets a verifier that isn't its author,** in fresh context. Use another Pi model only when available and authorized. The owner merges only on that verifier's pass at the current head and a user grant covering merge.
+- **Start with one unit.** Take it through kickoff, owner, verifier, and the authorized handoff or merge before you fan out, so a flaw in the kickoff costs one agent instead of fifty. On near-identical cheap units, the first unit is that test.
+
+#### Supervision
+
+- **Each kickoff names the evidence that proves the work is done,** such as a command and its expected output, a verification-skill check, or an artifact. It also names the goal, the paths the worker may and may not write, and the actions it must not take. If you can't name the evidence, the unit isn't scoped yet.
+- **Read the diff or the artifact, not only the worker's summary.** Green CI is an input to a verdict, not a verdict. Behavioral work needs more than a type check. A verdict covers one head SHA, so a new push needs a new verdict. Read a sample of each sub-coordinator's kickoffs while its workers run, and fix its instructions when one fails.
+- **Send back work that drifts from scope or grows past what was asked.** Keep only the fixes that block the program, and park the rest as follow-ups.
+- **Check a PR's live state before you report on it,** with `gh pr view` and `gh pr checks` or your forge's equivalents, not the worker's last report. Account for every worker you spawned as done, replaced, or absorbed into another worker's scope.
+- **Stop or replace a worker only on affirmative evidence that it failed or loops,** such as an error, a dead process, or the same push repeated. Silence is not failure. Judge it by its pushes and PR activity, not its status text. Retry by cause: a smaller scope after a context or memory limit, and the same kickoff after a dropped connection. Any other failure, such as a tool error or an unavailable model, is a named dropout, never a retry on a different model. After two retries, drop the unit and replan around it. When a stopped worker returns late, check its result against the PR's current state, and hand any unique findings to a fresh worker.
+- **Ask the user only for a real decision or a blocker,** such as an irreversible action, a product or preference call that no experiment settles, or a dead end that survived a replan. Rebase mechanics, retries, CI flakes, review triage, and "should I keep going" never reach the user.
+
+**Reply:** what landed against the goal, each PR's live state and verdict with its link, what was dropped and why, and the decisions waiting on the user.

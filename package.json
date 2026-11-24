@@ -1,0 +1,12 @@
+{
+  "name": "ppstack",
+  "version": "1.0.0",
+  "description": "pstack for Pi.",
+  "license": "MIT",
+  "keywords": ["pi-package"],
+  "repository": "github:JensenRay/ppstack",
+  "files": ["roles", "skills"],
+  "pi": {
+    "skills": ["./skills"]
+  }
+}
