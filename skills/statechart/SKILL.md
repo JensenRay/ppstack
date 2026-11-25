@@ -16,7 +16,9 @@ Work in a scratch folder outside the repo. Write a TLA+ spec and its config. The
 <skill dir>/scripts/statechart SPEC.tla [--config FILE] [--view FILE] [--out DIR]
 ```
 
-The launcher uses Node 22.18–22.x, Node 23.6+, Bun 1.1.5+, or Deno 2+. For an existing TLC installation, set `TLA2TOOLS` to the JAR path and optionally `JAVA` to the Java executable (11+). Otherwise the launcher uses `mise` to install its pinned tools on first use.
+`scripts/statechart.ts` needs a runtime that executes TypeScript. The POSIX launcher `scripts/statechart` selects Node 22.18 to 22.x, Node 23.6 or later, Bun 1.1.5 or later, or Deno 2 or later. On native Windows, run `node --disable-warning=ExperimentalWarning <skill dir>/scripts/statechart.ts SPEC.tla` with a supported Node version.
+
+For an existing TLC installation, set `TLA2TOOLS` to the JAR path and optionally `JAVA` to the Java executable, version 11 or later. Otherwise the launcher uses `mise` to install its pinned tools on first use, which needs the network.
 
 ## Write the spec
 

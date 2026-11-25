@@ -22,10 +22,13 @@ After installation, start Pi or run `/reload` in an existing session.
 
 ## Usage
 
+Use [/skill:reframe](skills/reframe/SKILL.md) to learn relevant terms from related fields before refining a description.
+
 ```text
 /skill:pp-mode Exporting an empty table drops its column headers. Reproduce it, fix it, and rerun the export.
 /skill:interrogate Review this branch in parallel and show how to reproduce each finding.
 /skill:setup-pstack Configure reviewer models and the maximum number of parallel workers.
+/skill:reframe Teach me the expert terms for what I am building and rewrite my description.
 /skill:pp-help Which workflow should I use to pick up an unfinished branch?
 ```
 
